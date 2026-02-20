@@ -64,7 +64,7 @@ public class RewardsService {
         return (LocationUtil.getDistanceInMiles(attraction, location) <= range);
     }
 
-    private int getRewardPoints(final Attraction attraction, final User user) {
+    public int getRewardPoints(final Attraction attraction, final User user) {
         return rewardsCentral.getAttractionRewardPoints(attraction.attractionId, user.getUserId());
     }
 }

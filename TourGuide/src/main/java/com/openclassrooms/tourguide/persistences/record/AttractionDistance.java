@@ -1,4 +1,6 @@
 package com.openclassrooms.tourguide.persistences.record;
 
-public record AttractionDistance() {
+import gpsUtil.location.Attraction;
+
+public record AttractionDistance(Attraction attraction, double distanceInMiles) {
 }
