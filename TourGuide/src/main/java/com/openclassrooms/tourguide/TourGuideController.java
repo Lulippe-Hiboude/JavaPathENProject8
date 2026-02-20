@@ -11,8 +11,8 @@ import gpsUtil.location.Attraction;
 import gpsUtil.location.VisitedLocation;
 
 import com.openclassrooms.tourguide.service.TourGuideService;
-import com.openclassrooms.tourguide.user.User;
-import com.openclassrooms.tourguide.user.UserReward;
+import com.openclassrooms.tourguide.persistences.user.User;
+import com.openclassrooms.tourguide.persistences.user.UserReward;
 
 import tripPricer.Provider;
 
@@ -56,7 +56,8 @@ public class TourGuideController {
     public List<Provider> getTripDeals(@RequestParam String userName) {
     	return tourGuideService.getTripDeals(getUser(userName));
     }
-    
+
+    //TODO create a userService to handle user related operations, and move this method there
     private User getUser(String userName) {
     	return tourGuideService.getUser(userName);
     }

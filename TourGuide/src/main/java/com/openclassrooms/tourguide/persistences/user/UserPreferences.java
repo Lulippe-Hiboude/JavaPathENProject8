@@ -1,4 +1,4 @@
-package com.openclassrooms.tourguide.user;
+package com.openclassrooms.tourguide.persistences.user;
 
 public class UserPreferences {
 	
