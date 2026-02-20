@@ -1,4 +1,4 @@
-package com.openclassrooms.tourguide.user;
+package com.openclassrooms.tourguide.persistences.user;
 
 import gpsUtil.location.Attraction;
 import gpsUtil.location.VisitedLocation;
