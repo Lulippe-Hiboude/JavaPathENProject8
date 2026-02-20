@@ -1,10 +1,14 @@
 package com.openclassrooms.tourguide.service;
 
+import com.openclassrooms.tourguide.dto.NearbyAttractionDto;
 import com.openclassrooms.tourguide.helper.InternalTestHelper;
+import com.openclassrooms.tourguide.mapper.AttractionMapper;
+import com.openclassrooms.tourguide.persistences.record.AttractionDistance;
 import com.openclassrooms.tourguide.persistences.user.User;
 import com.openclassrooms.tourguide.persistences.user.UserPreferences;
 import com.openclassrooms.tourguide.persistences.user.UserReward;
 import com.openclassrooms.tourguide.tracker.Tracker;
+import com.openclassrooms.tourguide.utils.LocationUtil;
 import gpsUtil.GpsUtil;
 import gpsUtil.location.Attraction;
 import gpsUtil.location.Location;
@@ -99,7 +103,7 @@ public class TourGuideService {
         return visitedLocation;
     }
 
-    public List<Attraction> getNearByAttractions(VisitedLocation visitedLocation) {
+    /*public List<Attraction> getNearByAttractions(VisitedLocation visitedLocation) {
         List<Attraction> nearbyAttractions = new ArrayList<>();
         for (Attraction attraction : gpsUtil.getAttractions()) {
             if (rewardsService.isWithinAttractionProximity(attraction, visitedLocation.location)) {
@@ -108,6 +112,24 @@ public class TourGuideService {
         }
 
         return nearbyAttractions;
+    }*/
+
+    public List<NearbyAttractionDto> getFiveClosestAttractions(final User user) {
+        final VisitedLocation visitedLocation = getUserLocation(user);
+
+        final List<AttractionDistance> closestAttractions = gpsUtil.getAttractions()
+                .stream()
+                .map(attraction -> new AttractionDistance(attraction, LocationUtil.getDistanceInMiles(visitedLocation.location, attraction)))
+                .sorted(Comparator.comparingDouble(AttractionDistance::distanceInMiles))
+                .limit(5)
+                .toList();
+
+        return closestAttractions.stream()
+                .map(attractionDistance -> {
+                    final int rewardPoints = rewardsService.getRewardPoints(attractionDistance.attraction(), user);
+                    return AttractionMapper.INSTANCE.toNearbyAttractionDto(attractionDistance, rewardPoints, visitedLocation.location);
+                })
+                .toList();
     }
 
     private void addShutDownHook() {

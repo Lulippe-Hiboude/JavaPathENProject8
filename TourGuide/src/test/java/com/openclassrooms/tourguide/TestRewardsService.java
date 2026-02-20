@@ -9,6 +9,7 @@ import com.openclassrooms.tourguide.service.TourGuideService;
 import gpsUtil.GpsUtil;
 import gpsUtil.location.Attraction;
 import gpsUtil.location.VisitedLocation;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import rewardCentral.RewardCentral;
@@ -17,8 +18,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TestRewardsService {
 
@@ -64,6 +64,17 @@ public class TestRewardsService {
                 .toList();
         System.out.println("Rewards: " + rewards);
         assertEquals(gpsUtil.getAttractions().size(), userRewards.size());
+    }
+
+    @Test
+    @DisplayName("should return rewardPoint")
+    void shouldReturnRewardPoint() {
+        User user = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
+        GpsUtil gpsUtil = new GpsUtil();
+        RewardsService rewardsService = new RewardsService(new RewardProperties(), gpsUtil, new RewardCentral());
+        Attraction attraction = gpsUtil.getAttractions().get(0);
+        int rewardPoints = rewardsService.getRewardPoints(attraction, user);
+        assertTrue(rewardPoints > 0);
     }
 
     private RewardProperties getTestRewardProperties() {
