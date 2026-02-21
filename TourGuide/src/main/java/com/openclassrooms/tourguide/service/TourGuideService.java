@@ -22,6 +22,9 @@ import tripPricer.TripPricer;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -47,7 +50,6 @@ public class TourGuideService {
             logger.debug("Finished initializing users");
         }
         tracker = new Tracker(this);
-        addShutDownHook();
     }
 
     public List<UserReward> getUserRewards(User user) {
@@ -96,23 +98,31 @@ public class TourGuideService {
         return providers;
     }
 
+    public void trackAllUser(final List<User> users, final ExecutorService executorService) {
+        AtomicInteger counter = new AtomicInteger(0);
+
+        List<CompletableFuture<Void>> futures = users.stream()
+                .map(user -> CompletableFuture.runAsync(
+                        () -> {
+                            trackUserLocation(user);
+                            int currentCount = counter.incrementAndGet();
+                            if (currentCount % 100 == 0) {
+                                logger.debug("Tracked {} users", currentCount);
+                            }
+                        }, executorService))
+                .toList();
+
+
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+        logger.debug("Finished tracking {} users", counter.get());
+    }
+
     public VisitedLocation trackUserLocation(User user) {
         VisitedLocation visitedLocation = gpsUtil.getUserLocation(user.getUserId());
         user.addToVisitedLocations(visitedLocation);
         rewardsService.calculateRewards(user);
         return visitedLocation;
     }
-
-    /*public List<Attraction> getNearByAttractions(VisitedLocation visitedLocation) {
-        List<Attraction> nearbyAttractions = new ArrayList<>();
-        for (Attraction attraction : gpsUtil.getAttractions()) {
-            if (rewardsService.isWithinAttractionProximity(attraction, visitedLocation.location)) {
-                nearbyAttractions.add(attraction);
-            }
-        }
-
-        return nearbyAttractions;
-    }*/
 
     public List<NearbyAttractionDto> getFiveClosestAttractions(final User user) {
         final VisitedLocation visitedLocation = getUserLocation(user);
@@ -132,13 +142,13 @@ public class TourGuideService {
                 .toList();
     }
 
-    private void addShutDownHook() {
+    /*private void addShutDownHook() {
         Runtime.getRuntime().addShutdownHook(new Thread() {
             public void run() {
                 tracker.stopTracking();
             }
         });
-    }
+    }*/
 
     /**********************************************************************************
      *

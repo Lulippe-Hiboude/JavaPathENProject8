@@ -25,7 +25,7 @@ public class TestRewardsService {
     @Test
     public void userGetRewards() {
         GpsUtil gpsUtil = new GpsUtil();
-        RewardsService rewardsService = new RewardsService(new RewardProperties(), gpsUtil, new RewardCentral());
+        RewardsService rewardsService = new RewardsService(gpsUtil, new RewardCentral(),new RewardProperties());
 
         InternalTestHelper.setInternalUserNumber(0);
         TourGuideService tourGuideService = new TourGuideService(gpsUtil, rewardsService);
@@ -42,16 +42,16 @@ public class TestRewardsService {
     @Test
     public void isWithinAttractionProximity() {
         GpsUtil gpsUtil = new GpsUtil();
-        RewardsService rewardsService = new RewardsService(new RewardProperties(), gpsUtil, new RewardCentral());
+        RewardsService rewardsService = new RewardsService(gpsUtil, new RewardCentral(),new RewardProperties());
         Attraction attraction = gpsUtil.getAttractions().get(0);
         assertTrue(rewardsService.isWithinAttractionProximity(attraction, attraction));
     }
 
-    @RepeatedTest(5)
+    @RepeatedTest(30)
     public void nearAllAttractions() {
         final RewardProperties rewardProperties = getTestRewardProperties();
         GpsUtil gpsUtil = new GpsUtil();
-        RewardsService rewardsService = new RewardsService(rewardProperties, gpsUtil, new RewardCentral());
+        RewardsService rewardsService = new RewardsService(gpsUtil, new RewardCentral(),rewardProperties);
 
         InternalTestHelper.setInternalUserNumber(1);
         TourGuideService tourGuideService = new TourGuideService(gpsUtil, rewardsService);
@@ -71,7 +71,7 @@ public class TestRewardsService {
     void shouldReturnRewardPoint() {
         User user = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
         GpsUtil gpsUtil = new GpsUtil();
-        RewardsService rewardsService = new RewardsService(new RewardProperties(), gpsUtil, new RewardCentral());
+        RewardsService rewardsService = new RewardsService(gpsUtil, new RewardCentral(),new RewardProperties());
         Attraction attraction = gpsUtil.getAttractions().get(0);
         int rewardPoints = rewardsService.getRewardPoints(attraction, user);
         assertTrue(rewardPoints > 0);
