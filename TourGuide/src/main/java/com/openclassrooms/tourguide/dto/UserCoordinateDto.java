@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-
 public class UserCoordinateDto {
     private double userLatitude;
     private double userLongitude;

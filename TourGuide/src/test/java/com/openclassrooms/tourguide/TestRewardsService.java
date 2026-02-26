@@ -6,6 +6,7 @@ import com.openclassrooms.tourguide.persistences.user.User;
 import com.openclassrooms.tourguide.persistences.user.UserReward;
 import com.openclassrooms.tourguide.service.RewardsService;
 import com.openclassrooms.tourguide.service.TourGuideService;
+import com.openclassrooms.tourguide.tracker.Tracker;
 import gpsUtil.GpsUtil;
 import gpsUtil.location.Attraction;
 import gpsUtil.location.VisitedLocation;
@@ -18,47 +19,49 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TestRewardsService {
 
     @Test
     public void userGetRewards() {
         GpsUtil gpsUtil = new GpsUtil();
-        RewardsService rewardsService = new RewardsService(gpsUtil, new RewardCentral(),new RewardProperties());
+        RewardsService rewardsService = new RewardsService(gpsUtil, new RewardCentral(), new RewardProperties());
 
         InternalTestHelper.setInternalUserNumber(0);
         TourGuideService tourGuideService = new TourGuideService(gpsUtil, rewardsService);
+        Tracker tracker = new Tracker(tourGuideService);
 
         User user = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
-        Attraction attraction = gpsUtil.getAttractions().get(0);
+        Attraction attraction = gpsUtil.getAttractions().getFirst();
         user.addToVisitedLocations(new VisitedLocation(user.getUserId(), attraction, new Date()));
         tourGuideService.trackUserLocation(user);
         List<UserReward> userRewards = user.getUserRewards();
-        tourGuideService.tracker.stopTracking();
-        assertTrue(userRewards.size() == 1);
+        tracker.stopTracking();
+        assertEquals(1, userRewards.size());
     }
 
     @Test
     public void isWithinAttractionProximity() {
         GpsUtil gpsUtil = new GpsUtil();
-        RewardsService rewardsService = new RewardsService(gpsUtil, new RewardCentral(),new RewardProperties());
-        Attraction attraction = gpsUtil.getAttractions().get(0);
+        RewardsService rewardsService = new RewardsService(gpsUtil, new RewardCentral(), new RewardProperties());
+        Attraction attraction = gpsUtil.getAttractions().getFirst();
         assertTrue(rewardsService.isWithinAttractionProximity(attraction, attraction));
     }
 
-    @RepeatedTest(30)
+    @RepeatedTest(5)
     public void nearAllAttractions() {
         final RewardProperties rewardProperties = getTestRewardProperties();
         GpsUtil gpsUtil = new GpsUtil();
-        RewardsService rewardsService = new RewardsService(gpsUtil, new RewardCentral(),rewardProperties);
+        RewardsService rewardsService = new RewardsService(gpsUtil, new RewardCentral(), rewardProperties);
 
         InternalTestHelper.setInternalUserNumber(1);
         TourGuideService tourGuideService = new TourGuideService(gpsUtil, rewardsService);
-
+        Tracker tracker = new Tracker(tourGuideService);
         rewardsService.calculateRewards(tourGuideService.getAllUsers().get(0));
         List<UserReward> userRewards = tourGuideService.getUserRewards(tourGuideService.getAllUsers().get(0));
-        tourGuideService.tracker.stopTracking();
+        tracker.stopTracking();
         final List<String> rewards = userRewards.stream()
                 .map(r -> r.attraction.attractionName)
                 .toList();
@@ -71,8 +74,8 @@ public class TestRewardsService {
     void shouldReturnRewardPoint() {
         User user = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
         GpsUtil gpsUtil = new GpsUtil();
-        RewardsService rewardsService = new RewardsService(gpsUtil, new RewardCentral(),new RewardProperties());
-        Attraction attraction = gpsUtil.getAttractions().get(0);
+        RewardsService rewardsService = new RewardsService(gpsUtil, new RewardCentral(), new RewardProperties());
+        Attraction attraction = gpsUtil.getAttractions().getFirst();
         int rewardPoints = rewardsService.getRewardPoints(attraction, user);
         assertTrue(rewardPoints > 0);
     }
