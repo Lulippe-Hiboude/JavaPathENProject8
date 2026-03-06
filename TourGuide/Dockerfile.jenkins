@@ -1,0 +1,16 @@
+# This Dockerfile is used to build a custom Jenkins image with pre-installed plugins and initialization scripts.
+
+FROM jenkins/jenkins:lts
+
+RUN jenkins-plugin-cli --plugins \
+    workflow-aggregator \
+    git \
+    docker-workflow \
+    timestamper
+
+COPY jenkins-init/ /usr/share/jenkins/ref/init.groovy.d/
+
+USER root
+RUN apt-get update && apt-get install -y maven && rm -rf /var/lib/apt/lists/*
+
+USER jenkins
