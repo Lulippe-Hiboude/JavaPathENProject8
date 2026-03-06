@@ -8,10 +8,9 @@ import gpsUtil.GpsUtil;
 import gpsUtil.location.Attraction;
 import gpsUtil.location.Location;
 import gpsUtil.location.VisitedLocation;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 import rewardCentral.RewardCentral;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -19,22 +18,31 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Stream;
 
-@Service
-@RequiredArgsConstructor
 public class RewardsService {
 
     private final RewardProperties rewardProperties;
     private final GpsUtil gpsUtil;
     private final RewardCentral rewardsCentral;
-    private final ReentrantLock rewardsLock = new ReentrantLock();
+    private final List<Attraction> attractions;
+    private final ConcurrentHashMap<UUID, ReentrantLock> userLocks = new ConcurrentHashMap<>();
+
+    public RewardsService(GpsUtil gpsUtil, RewardCentral rewardCentral, RewardProperties rewardProperties) {
+        this.rewardProperties = rewardProperties;
+        this.gpsUtil = gpsUtil;
+        this.rewardsCentral = rewardCentral;
+        this.attractions = gpsUtil.getAttractions();
+    }
 
     public void calculateRewards(final User user) {
-        rewardsLock.lock();
+        ReentrantLock lock = userLocks.computeIfAbsent(
+                user.getUserId(),
+                id -> new ReentrantLock()
+        );
+        lock.lock();
         try {
             final List<VisitedLocation> userLocations = user.getVisitedLocations();
-            final List<Attraction> attractions = gpsUtil.getAttractions();
 
-            final Set<UUID> rewardedAttractionIds = ConcurrentHashMap.newKeySet();
+            final Set<UUID> rewardedAttractionIds = new HashSet<>();
             user.getUserRewards()
                     .forEach(userReward -> rewardedAttractionIds.add(userReward.attraction.attractionId));
 
@@ -43,8 +51,9 @@ public class RewardsService {
                     .toList();
 
             user.getUserRewards().addAll(newRewards);
+
         } finally {
-            rewardsLock.unlock();
+            lock.unlock();
         }
     }
 
