@@ -9,7 +9,7 @@ import hudson.model.*
 def jenkins = Jenkins.instance
 def jobName = "tourguide-ci"
 def repositoryUrl = "https://github.com/Lulippe-Hiboude/JavaPathENProject8"
-def branchName = "feature/TG-4-set-up-ci-pipeline"
+def branchName = "*/master"
 def scriptsPath = "Jenkinsfile"
 
 if (jenkins.getItem(jobName) == null) {
