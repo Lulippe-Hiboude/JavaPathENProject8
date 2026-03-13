@@ -24,6 +24,7 @@ public class Tracker extends Thread {
         t.setDaemon(true);
         return t;
     });
+
     private final TourGuideService tourGuideService;
     private boolean stop = false;
 
