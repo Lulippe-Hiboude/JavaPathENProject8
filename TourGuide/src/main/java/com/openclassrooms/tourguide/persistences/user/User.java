@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.locks.ReentrantLock;
 
 @Getter
 public class User {
@@ -50,7 +51,7 @@ public class User {
     }
 
     public void addUserReward(UserReward userReward) {
-        if (userRewards.stream().filter(r -> !r.attraction.attractionName.equals(userReward.attraction)).count() == 0) {
+        if (userRewards.stream().noneMatch(r -> r.attraction.attractionName.equals(userReward.attraction.attractionName))) {
             userRewards.add(userReward);
         }
     }
@@ -60,11 +61,10 @@ public class User {
     }
 
     public VisitedLocation getLastVisitedLocation() {
-        return visitedLocations.get(visitedLocations.size() - 1);
+        return visitedLocations.getLast();
     }
 
     public void setTripDeals(List<Provider> tripDeals) {
         this.tripDeals = tripDeals;
     }
-
 }

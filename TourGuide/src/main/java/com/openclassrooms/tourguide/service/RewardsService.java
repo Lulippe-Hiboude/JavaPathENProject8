@@ -57,8 +57,10 @@ public class RewardsService {
         }
     }
 
-    private Stream<UserReward> getRewardStream(final User user, final VisitedLocation visitedLocation,
-                                               final List<Attraction> attractions, final Set<UUID> rewardedAttractionIds) {
+    private Stream<UserReward> getRewardStream(final User user,
+                                               final VisitedLocation visitedLocation,
+                                               final List<Attraction> attractions,
+                                               final Set<UUID> rewardedAttractionIds) {
         return attractions.stream()
                 .filter(attraction -> isWithinProximity(attraction, visitedLocation.location, rewardProperties.getDefaultProximityBuffer()))
                 .filter(attraction -> rewardedAttractionIds.add(attraction.attractionId))
@@ -69,7 +71,9 @@ public class RewardsService {
         return isWithinProximity(attraction, location, rewardProperties.getAttractionProximityRange());
     }
 
-    private boolean isWithinProximity(final Attraction attraction, final Location location, final int range) {
+    private boolean isWithinProximity(final Attraction attraction,
+                                      final Location location,
+                                      final int range) {
         return (LocationUtil.getDistanceInMiles(attraction, location) <= range);
     }
 

@@ -19,7 +19,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TestRewardsService {
@@ -39,7 +39,8 @@ public class TestRewardsService {
         tourGuideService.trackUserLocation(user);
         List<UserReward> userRewards = user.getUserRewards();
         tracker.stopTracking();
-        assertEquals(1, userRewards.size());
+        assertThat(userRewards).hasSize(1);
+
     }
 
     @Test
@@ -47,7 +48,7 @@ public class TestRewardsService {
         GpsUtil gpsUtil = new GpsUtil();
         RewardsService rewardsService = new RewardsService(gpsUtil, new RewardCentral(), new RewardProperties());
         Attraction attraction = gpsUtil.getAttractions().getFirst();
-        assertTrue(rewardsService.isWithinAttractionProximity(attraction, attraction));
+        assertThat(rewardsService.isWithinAttractionProximity(attraction, attraction)).isTrue();
     }
 
     @RepeatedTest(5)
@@ -66,7 +67,8 @@ public class TestRewardsService {
                 .map(r -> r.attraction.attractionName)
                 .toList();
         System.out.println("Rewards: " + rewards);
-        assertEquals(gpsUtil.getAttractions().size(), userRewards.size());
+        assertThat(userRewards).hasSameSizeAs(gpsUtil.getAttractions());
+
     }
 
     @Test

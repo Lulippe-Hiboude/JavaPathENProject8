@@ -84,7 +84,6 @@ public class Tracker extends Thread {
                 TimeUnit.SECONDS.sleep(TRACKING_POLLING_INTERVAL);
             } catch (InterruptedException e) {
                 LOGGER.debug("Tracker interrupted");
-
                 break;
             }
         }

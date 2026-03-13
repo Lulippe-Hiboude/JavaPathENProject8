@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class TourGuideService {
-    private final Logger logger = LoggerFactory.getLogger(TourGuideService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TourGuideService.class);
     private final GpsUtil gpsUtil;
     private final RewardsService rewardsService;
     private final TripPricer tripPricer = new TripPricer();
@@ -36,24 +36,23 @@ public class TourGuideService {
         Locale.setDefault(Locale.US);
 
         if (testMode) {
-            logger.info("TestMode enabled");
-            logger.debug("Initializing users");
+            LOGGER.info("TestMode enabled");
+            LOGGER.debug("Initializing users");
             initializeInternalUsers();
-            logger.debug("Finished initializing users");
+            LOGGER.debug("Finished initializing users");
         }
     }
 
-    public List<UserReward> getUserRewards(User user) {
+    public List<UserReward> getUserRewards(final User user) {
         return user.getUserRewards();
     }
 
     public VisitedLocation getUserLocation(final User user) {
-        VisitedLocation visitedLocation = (user.getVisitedLocations().size() > 0) ? user.getLastVisitedLocation()
+        return (!user.getVisitedLocations().isEmpty()) ? user.getLastVisitedLocation()
                 : trackUserLocation(user);
-        return visitedLocation;
     }
 
-    public User getUser(String userName) {
+    public User getUser(final String userName) {
         return internalUserMap.get(userName);
     }
 
@@ -61,7 +60,7 @@ public class TourGuideService {
         return new ArrayList<>(internalUserMap.values());
     }
 
-    public void addUser(User user) {
+    public void addUser(final User user) {
         if (!internalUserMap.containsKey(user.getUserName())) {
             internalUserMap.put(user.getUserName(), user);
         }
@@ -74,7 +73,7 @@ public class TourGuideService {
 
         final UserPreferences userPreferences = user.getUserPreferences();
 
-        List<Provider> providers = IntStream.range(0, 2)
+        final List<Provider> providers = IntStream.range(0, 2)
                 .mapToObj(i -> tripPricer.getPrice(tripPricerApiKey,
                         user.getUserId(),
                         userPreferences.getNumberOfAdults(),
@@ -89,8 +88,8 @@ public class TourGuideService {
         return providers;
     }
 
-    public VisitedLocation trackUserLocation(User user) {
-        VisitedLocation visitedLocation = gpsUtil.getUserLocation(user.getUserId());
+    public VisitedLocation trackUserLocation(final User user) {
+        final VisitedLocation visitedLocation = gpsUtil.getUserLocation(user.getUserId());
         user.addToVisitedLocations(visitedLocation);
         rewardsService.calculateRewards(user);
         return visitedLocation;
@@ -134,7 +133,7 @@ public class TourGuideService {
 
             internalUserMap.put(userName, user);
         });
-        logger.debug("Created {} internal test users.", InternalTestHelper.getInternalUserNumber());
+        LOGGER.debug("Created {} internal test users.", InternalTestHelper.getInternalUserNumber());
     }
 
     private void generateUserLocationHistory(User user) {
@@ -160,5 +159,4 @@ public class TourGuideService {
         LocalDateTime localDateTime = LocalDateTime.now().minusDays(new Random().nextInt(30));
         return Date.from(localDateTime.toInstant(ZoneOffset.UTC));
     }
-
 }

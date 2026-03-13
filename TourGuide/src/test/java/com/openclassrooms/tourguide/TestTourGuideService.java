@@ -23,6 +23,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -44,7 +46,7 @@ public class TestTourGuideService {
 
         tracker.stopTracking();
 
-        assertEquals(visitedLocation.userId, user.getUserId());
+        assertThat(visitedLocation.userId).isEqualTo(user.getUserId());
     }
 
     @Test
@@ -65,8 +67,10 @@ public class TestTourGuideService {
 
         tracker.stopTracking();
 
-        assertEquals(user, retrievedUser);
-        assertEquals(user2, retrievedUser2);
+        assertSoftly(softly -> {
+            softly.assertThat(retrievedUser).isEqualTo(user);
+            softly.assertThat(retrievedUser2).isEqualTo(user2);
+        });
     }
 
     @Test
@@ -86,8 +90,7 @@ public class TestTourGuideService {
 
         tracker.stopTracking();
 
-        assertTrue(allUsers.contains(user));
-        assertTrue(allUsers.contains(user2));
+        assertThat(allUsers).contains(user, user2);
     }
 
     @Test
@@ -102,7 +105,7 @@ public class TestTourGuideService {
 
         tracker.stopTracking();
 
-        assertEquals(user.getUserId(), visitedLocation.userId);
+        assertThat(visitedLocation.userId).isEqualTo(user.getUserId());
     }
 
     @Test
@@ -118,7 +121,7 @@ public class TestTourGuideService {
 
         tracker.stopTracking();
 
-        assertEquals(5, attractions.size());
+        assertThat(attractions).hasSize(5);
     }
 
     @Test
@@ -134,7 +137,7 @@ public class TestTourGuideService {
 
         tracker.stopTracking();
 
-        assertEquals(10, providers.size());
+        assertThat(providers).hasSize(10);
     }
 
     @Test
@@ -168,10 +171,15 @@ public class TestTourGuideService {
         List<NearbyAttractionDto> expected = tourGuideService.getFiveClosestAttractions(user);
 
         //then
-        assertEquals(5, expected.size());
-        assertEquals("Boston Common", expected.get(0).getAttractionName());
-        assertEquals(100, expected.get(0).getRewardPoints());
-        assertEquals(distanceToBostonCommon, expected.get(0).getDistanceInMiles());
+        assertThat(expected).hasSize(5);
+        assertThat(expected.get(0).getAttractionName())
+                .isEqualTo("Boston Common");
+
+        assertThat(expected.get(0).getRewardPoints())
+                .isEqualTo(100);
+
+        assertThat(expected.get(0).getDistanceInMiles())
+                .isEqualTo(distanceToBostonCommon);
     }
 
     private static List<Attraction> getAttractionList() {

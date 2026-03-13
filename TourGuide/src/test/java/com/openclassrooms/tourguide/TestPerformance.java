@@ -23,7 +23,6 @@ import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.awaitility.Awaitility.await;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Slf4j
 @SpringBootTest
@@ -71,7 +70,9 @@ public class TestPerformance {
 
         System.out.println("highVolumeTrackLocation: Time Elapsed: "
                 + TimeUnit.MILLISECONDS.toSeconds(stopWatch.getTime()) + " seconds.");
-        assertTrue(TimeUnit.MINUTES.toSeconds(15) >= TimeUnit.MILLISECONDS.toSeconds(stopWatch.getTime()));
+        assertThat(TimeUnit.MILLISECONDS.toSeconds(stopWatch.getTime()))
+                .isLessThanOrEqualTo(TimeUnit.MINUTES.toSeconds(15));
+
     }
 
     @Test
@@ -100,6 +101,8 @@ public class TestPerformance {
 
         System.out.println("highVolumeGetRewards: Time Elapsed: " + TimeUnit.MILLISECONDS.toSeconds(stopWatch.getTime())
                 + " seconds.");
-        assertTrue(TimeUnit.MINUTES.toSeconds(20) >= TimeUnit.MILLISECONDS.toSeconds(stopWatch.getTime()));
+        assertThat(TimeUnit.MILLISECONDS.toSeconds(stopWatch.getTime()))
+                .isLessThanOrEqualTo(TimeUnit.MINUTES.toSeconds(20));
+
     }
 }

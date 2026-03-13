@@ -35,13 +35,12 @@ public class TourGuideModule {
     }
 
     @Bean
-    TourGuideService tourGuideService(GpsUtil gpsUtil, RewardsService rewardsService) {
+    TourGuideService tourGuideService(final GpsUtil gpsUtil, final RewardsService rewardsService) {
         return new TourGuideService(gpsUtil, rewardsService);
     }
 
     @Bean
-    Tracker tracker(TourGuideService tourGuideService) {
+    Tracker tracker(final TourGuideService tourGuideService) {
         return new Tracker(tourGuideService);
     }
-
 }
