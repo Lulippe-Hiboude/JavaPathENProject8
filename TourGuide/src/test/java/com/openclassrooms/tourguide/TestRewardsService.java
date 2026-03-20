@@ -95,6 +95,12 @@ public class TestRewardsService {
         assertTrue(rewardPoints > 0);
     }
 
+    @Test
+    @DisplayName("should return 0 rewardPoint if user already has reward for attraction")
+    void shouldReturnZeroRewardPointIfUserAlreadyHasRewardForAttraction() {
+
+    }
+
     private RewardProperties getTestRewardProperties() {
         final RewardProperties rewardProperties = new RewardProperties();
         rewardProperties.setDefaultProximityBuffer(Integer.MAX_VALUE);
