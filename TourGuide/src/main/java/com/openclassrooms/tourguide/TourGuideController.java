@@ -16,8 +16,11 @@ import java.util.List;
 @RestController
 public class TourGuideController {
 
-    @Autowired
-    TourGuideService tourGuideService;
+    private final TourGuideService tourGuideService;
+
+    public TourGuideController(TourGuideService tourGuideService) {
+        this.tourGuideService = tourGuideService;
+    }
 
     @RequestMapping("/")
     public String index() {
@@ -25,7 +28,7 @@ public class TourGuideController {
     }
 
     @RequestMapping("/getLocation")
-    public VisitedLocation getLocation(@RequestParam String userName) {
+    public VisitedLocation getLocation(@RequestParam final String userName) {
         return tourGuideService.getUserLocation(getUser(userName));
     }
 
@@ -36,17 +39,16 @@ public class TourGuideController {
     }
 
     @RequestMapping("/getRewards")
-    public List<UserReward> getRewards(@RequestParam String userName) {
+    public List<UserReward> getRewards(@RequestParam final String userName) {
         return tourGuideService.getUserRewards(getUser(userName));
     }
 
     @RequestMapping("/getTripDeals")
-    public List<Provider> getTripDeals(@RequestParam String userName) {
+    public List<Provider> getTripDeals(@RequestParam final String userName) {
         return tourGuideService.getTripDeals(getUser(userName));
     }
 
-    private User getUser(String userName) {
+    private User getUser(final String userName) {
         return tourGuideService.getUser(userName);
     }
-
 }

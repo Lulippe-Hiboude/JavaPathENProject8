@@ -58,19 +58,23 @@ public class Tracker extends Thread {
                 var futures = new ArrayList<CompletableFuture<User>>(users.size());
                 for (User user : users) {
                     futures.add(CompletableFuture.supplyAsync(() -> {
-                        tourGuideService.trackUserLocation(user);
-                        long count = trackedUsersCount.accumulateAndGet(1L, (previousCount, delta) -> {
-                            if (previousCount == Long.MAX_VALUE) {
-                                LOGGER.warn("Tracker reached max tracked locations count. Resetting counter.");
-                                return 1L;
-                            }
-                            return previousCount + delta;
-                        });
-                        if (count % 1000 == 0) {
-                            LOGGER.debug("Processed {} users", count);
-                        }
-                        return user;
-                    }, executor));
+                                tourGuideService.trackUserLocation(user);
+                                long count = trackedUsersCount.accumulateAndGet(1L, (previousCount, delta) -> {
+                                    if (previousCount == Long.MAX_VALUE) {
+                                        LOGGER.warn("Tracker reached max tracked locations count. Resetting counter.");
+                                        return 1L;
+                                    }
+                                    return previousCount + delta;
+                                });
+                                if (count % 1000 == 0) {
+                                    LOGGER.debug("Processed {} users", count);
+                                }
+                                return user;
+                            }, executor)
+                            .exceptionally(ex -> {
+                                LOGGER.error("Error tracking user {}: {}", user.getUserName(), ex.getMessage(), ex);
+                                return null;
+                            }));
                 }
                 CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new)).join();
             }
@@ -84,7 +88,6 @@ public class Tracker extends Thread {
                 TimeUnit.SECONDS.sleep(TRACKING_POLLING_INTERVAL);
             } catch (InterruptedException e) {
                 LOGGER.debug("Tracker interrupted");
-
                 break;
             }
         }

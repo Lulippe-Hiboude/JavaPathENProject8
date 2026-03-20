@@ -1,123 +1,153 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<parent>
-		<groupId>org.springframework.boot</groupId>
-		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.1.1</version>
-		<relativePath/> <!-- lookup parent from repository -->
-	</parent>
-	<groupId>com.openclassrooms</groupId>
-	<artifactId>tourguide</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
-	<name>tourguide</name>
-	<description>Demo project for Spring Boot</description>
-	<properties>
-		<java.version>21</java.version>
-	</properties>
-	<repositories>
-		<repository>
-			<id>local-libs</id>
-			<url>file://${project.basedir}/libs</url>
-		</repository>
-	</repositories>
-	<dependencies>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-actuator</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-validation</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web</artifactId>
-		</dependency>
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
-		</dependency>
-		
-		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-lang3</artifactId>
-		</dependency>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.1.1</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
 
-		<dependency>
-			<groupId>org.junit.jupiter</groupId>
-			<artifactId>junit-jupiter-api</artifactId>
-			<scope>test</scope>
-		</dependency>
+    <groupId>com.openclassrooms</groupId>
+    <artifactId>tourguide</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>tourguide</name>
+    <description>Demo project for Spring Boot</description>
 
-		<dependency>
-			<groupId>gpsUtil</groupId>
-			<artifactId>gpsUtil</artifactId>
-			<version>1.0.0</version>
-			<scope>system</scope>
-			<systemPath>${project.basedir}/libs/gpsUtil.jar</systemPath>
-		</dependency>
+    <properties>
+        <java.version>21</java.version>
+        <gpsUtil.version>1.0.0</gpsUtil.version>
+        <tripPricer.version>1.0.0</tripPricer.version>
+		<rewardCentral.version>1.0.0</rewardCentral.version>
+        <mockito.version>5.13.0</mockito.version>
+        <lombok.version>1.18.36</lombok.version>
+        <awaitility.version>4.2.0</awaitility.version>
+        <mapstruct.version>1.6.0</mapstruct.version>
+        <jspecify.version>1.0.0</jspecify.version>
+    </properties>
 
-		<dependency>
-			<groupId>tripPricer</groupId>
-			<artifactId>tripPricer</artifactId>
-			<version>1.0.0</version>
-			<scope>system</scope>
-			<systemPath>${project.basedir}/libs/TripPricer.jar</systemPath>
-		</dependency>
+    <repositories>
+        <repository>
+            <id>local-libs</id>
+            <url>file://${project.basedir}/libs</url>
+        </repository>
+    </repositories>
 
-		<dependency>
-			<groupId>rewardCentral</groupId>
-			<artifactId>rewardCentral</artifactId>
-			<version>1.0.0</version>
-			<scope>system</scope>
-			<systemPath>${project.basedir}/libs/RewardCentral.jar</systemPath>
-		</dependency>
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
 
-		<dependency>
-			<groupId>org.mockito</groupId>
-			<artifactId>mockito-core</artifactId>
-			<version>5.13.0</version>
-			<scope>test</scope>
-		</dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
 
-		<dependency>
-			<groupId>org.projectlombok</groupId>
-			<artifactId>lombok</artifactId>
-			<version>1.18.36</version>
-			<scope>provided</scope>
-			<optional>true</optional>
-		</dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
 
-		<dependency>
-			<groupId>org.awaitility</groupId>
-			<artifactId>awaitility</artifactId>
-			<version>4.2.0</version>
-			<scope>test</scope>
-		</dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
 
-		<!--MapStruct-->
-		<dependency>
-			<groupId>org.mapstruct</groupId>
-			<artifactId>mapstruct</artifactId>
-			<version>1.6.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.mapstruct</groupId>
-			<artifactId>mapstruct-processor</artifactId>
-			<version>1.6.0</version>
-		</dependency>
-	</dependencies>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <scope>test</scope>
+        </dependency>
 
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-			</plugin>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jspecify</groupId>
+            <artifactId>jspecify</artifactId>
+            <version>${jspecify.version}</version>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>gpsUtil</groupId>
+            <artifactId>gpsUtil</artifactId>
+            <version>${gpsUtil.version}</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/libs/gpsUtil.jar</systemPath>
+        </dependency>
+
+        <dependency>
+            <groupId>tripPricer</groupId>
+            <artifactId>tripPricer</artifactId>
+            <version>${tripPricer.version}</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/libs/TripPricer.jar</systemPath>
+        </dependency>
+
+        <dependency>
+            <groupId>rewardCentral</groupId>
+            <artifactId>rewardCentral</artifactId>
+            <version>${rewardCentral.version}</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/libs/RewardCentral.jar</systemPath>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>${mockito.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
+            <scope>provided</scope>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>org.awaitility</groupId>
+            <artifactId>awaitility</artifactId>
+            <version>${awaitility.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!--MapStruct-->
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+            <version>${mapstruct.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct-processor</artifactId>
+            <version>${mapstruct.version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -127,6 +157,6 @@
                 </configuration>
             </plugin>
         </plugins>
-	</build>
+    </build>
 
 </project>
