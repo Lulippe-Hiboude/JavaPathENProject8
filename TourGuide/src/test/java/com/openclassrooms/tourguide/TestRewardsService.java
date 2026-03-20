@@ -26,6 +26,10 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @SpringBootTest
 public class TestRewardsService {
@@ -35,69 +39,182 @@ public class TestRewardsService {
 
     @Test
     public void userGetRewards() {
-        GpsUtil gpsUtil = new GpsUtil();
-        GpsService gpsService = new GpsService(gpsUtil);
-        RewardsService rewardsService = new RewardsService(gpsService, new RewardCentral(), new RewardProperties());
-        TripPricerService tripPricerService = new TripPricerService(new TripPricer(), apiKey);
+        //GIVEN
+        final GpsUtil gpsUtil = new GpsUtil();
+        final GpsService gpsService = new GpsService(gpsUtil);
+        final RewardsService rewardsService = new RewardsService(gpsService, new RewardCentral(), new RewardProperties());
+        final TripPricerService tripPricerService = new TripPricerService(new TripPricer(), apiKey);
         InternalTestHelper.setInternalUserNumber(0);
-        TourGuideService tourGuideService = new TourGuideService(gpsService, rewardsService, tripPricerService);
-        Tracker tracker = new Tracker(tourGuideService);
+        final TourGuideService tourGuideService = new TourGuideService(gpsService, rewardsService, tripPricerService);
+        final Tracker tracker = new Tracker(tourGuideService);
 
-        User user = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
-        Attraction attraction = gpsService.getAttractions().getFirst();
+        final User user = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
+        final Attraction attraction = gpsService.getAttractions().getFirst();
         user.addToVisitedLocations(new VisitedLocation(user.getUserId(), attraction, new Date()));
+
+        //WHEN & THEN
         tourGuideService.trackUserLocation(user);
-        List<UserReward> userRewards = user.getUserRewards();
+        final List<UserReward> userRewards = user.getUserRewards();
         tracker.stopTracking();
         assertThat(userRewards).hasSize(1);
-
     }
 
     @Test
     public void isWithinAttractionProximity() {
-        GpsUtil gpsUtil = new GpsUtil();
-        GpsService gpsService = new GpsService(gpsUtil);
-        RewardsService rewardsService = new RewardsService(gpsService, new RewardCentral(), new RewardProperties());
-        Attraction attraction = gpsService.getAttractions().getFirst();
+        //GIVEN
+        final GpsUtil gpsUtil = new GpsUtil();
+        final GpsService gpsService = new GpsService(gpsUtil);
+        final RewardsService rewardsService = new RewardsService(gpsService, new RewardCentral(), new RewardProperties());
+        final Attraction attraction = gpsService.getAttractions().getFirst();
+
+        //WHEN & THEN
         assertThat(rewardsService.isWithinAttractionProximity(attraction, attraction)).isTrue();
     }
 
     @RepeatedTest(5)
     public void nearAllAttractions() {
+        //GIVEN
         final RewardProperties rewardProperties = getTestRewardProperties();
-        GpsUtil gpsUtil = new GpsUtil();
-        GpsService gpsService = new GpsService(gpsUtil);
-        RewardsService rewardsService = new RewardsService(gpsService, new RewardCentral(), rewardProperties);
-        TripPricerService tripPricerService = new TripPricerService(new TripPricer(), apiKey);
+        final GpsUtil gpsUtil = new GpsUtil();
+        final GpsService gpsService = new GpsService(gpsUtil);
+        final RewardsService rewardsService = new RewardsService(gpsService, new RewardCentral(), rewardProperties);
+        final TripPricerService tripPricerService = new TripPricerService(new TripPricer(), apiKey);
         InternalTestHelper.setInternalUserNumber(1);
-        TourGuideService tourGuideService = new TourGuideService(gpsService, rewardsService, tripPricerService);
-        Tracker tracker = new Tracker(tourGuideService);
-        rewardsService.calculateRewards(tourGuideService.getAllUsers().get(0));
-        List<UserReward> userRewards = tourGuideService.getUserRewards(tourGuideService.getAllUsers().get(0));
+        final TourGuideService tourGuideService = new TourGuideService(gpsService, rewardsService, tripPricerService);
+        final Tracker tracker = new Tracker(tourGuideService);
+
+        //WHEN & THEN
+        rewardsService.calculateRewards(tourGuideService.getAllUsers().getFirst());
+        final List<UserReward> userRewards = tourGuideService.getUserRewards(tourGuideService.getAllUsers().getFirst());
         tracker.stopTracking();
         final List<String> rewards = userRewards.stream()
                 .map(r -> r.attraction().attractionName)
                 .toList();
         System.out.println("Rewards: " + rewards);
         assertThat(userRewards).hasSameSizeAs(gpsService.getAttractions());
-
     }
 
     @Test
     @DisplayName("should return rewardPoint")
     void shouldReturnRewardPoint() {
-        User user = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
-        GpsUtil gpsUtil = new GpsUtil();
-        GpsService gpsService = new GpsService(gpsUtil);
-        RewardsService rewardsService = new RewardsService(gpsService, new RewardCentral(), new RewardProperties());
-        Attraction attraction = gpsService.getAttractions().getFirst();
-        int rewardPoints = rewardsService.getRewardPoints(attraction, user);
+        //GIVEN
+        final User user = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
+        final GpsUtil gpsUtil = new GpsUtil();
+        final GpsService gpsService = new GpsService(gpsUtil);
+        final RewardsService rewardsService = new RewardsService(gpsService, new RewardCentral(), new RewardProperties());
+        final Attraction attraction = gpsService.getAttractions().getFirst();
+
+        //WHEN & THEN
+        final int rewardPoints = rewardsService.getRewardPoints(attraction, user);
         assertTrue(rewardPoints > 0);
     }
 
     @Test
     @DisplayName("should return 0 rewardPoint if user already has reward for attraction")
     void shouldReturnZeroRewardPointIfUserAlreadyHasRewardForAttraction() {
+        //Given
+        final User user = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
+        final GpsUtil gpsUtil = new GpsUtil();
+        final GpsService gpsService = new GpsService(gpsUtil);
+        final RewardsService rewardsService = new RewardsService(gpsService, new RewardCentral(), new RewardProperties());
+        final Attraction attraction = gpsService.getAttractions().getFirst();
+
+        final VisitedLocation visitedLocation = new VisitedLocation(
+                user.getUserId(),
+                attraction,
+                new Date()
+        );
+
+        final UserReward existingReward = new UserReward(
+                visitedLocation,
+                attraction,
+                100
+        );
+
+        user.addUserReward(existingReward);
+
+        // WHEN
+        final int rewardPoints = rewardsService.getRewardPoints(attraction, user);
+
+        // THEN
+        assertThat(rewardPoints).isEqualTo(0);
+    }
+
+    @Test
+    @DisplayName("should handle exception in CompletableFuture and not add reward")
+    void shouldHandleExceptionInCompletableFutureAndNotAddReward() {
+        // GIVEN
+        final GpsUtil gpsUtil = new GpsUtil();
+        final GpsService gpsService = new GpsService(gpsUtil);
+        final RewardCentral rewardCentral = mock(RewardCentral.class);
+        when(rewardCentral.getAttractionRewardPoints(any(), any()))
+                .thenThrow(new RuntimeException("Boom"));
+        final RewardsService rewardsService = new RewardsService(
+                gpsService,
+                rewardCentral,
+                new RewardProperties()
+        );
+        final User user = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
+
+        final Attraction attraction = gpsService.getAttractions().getFirst();
+
+        user.addToVisitedLocations(new VisitedLocation(
+                user.getUserId(),
+                attraction,
+                new Date()
+        ));
+
+        // WHEN
+        rewardsService.calculateRewards(user);
+
+        // THEN
+        assertThat(user.getUserRewards()).isEmpty();
+    }
+
+    @Test
+    @DisplayName("should continue processing rewards when some CompletableFutures fail")
+    void shouldContinueWhenSomeFuturesFail() {
+        // GIVEN
+        final GpsUtil gpsUtil = new GpsUtil();
+        final GpsService gpsService = new GpsService(gpsUtil);
+
+        final RewardCentral rewardCentral = mock(RewardCentral.class);
+
+        final List<Attraction> attractions = gpsService.getAttractions();
+
+        final Attraction failingAttraction = attractions.get(0);
+        final Attraction successAttraction = attractions.get(1);
+
+        final RewardProperties rewardProperties = getTestRewardProperties();
+
+        when(rewardCentral.getAttractionRewardPoints(
+                eq(failingAttraction.attractionId), any()))
+                .thenThrow(new RuntimeException("Boom"));
+
+        when(rewardCentral.getAttractionRewardPoints(
+                eq(successAttraction.attractionId), any()))
+                .thenReturn(100);
+        final RewardsService rewardsService = new RewardsService(
+                gpsService,
+                rewardCentral,
+                rewardProperties
+        );
+        final User user = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
+        user.addToVisitedLocations(new VisitedLocation(
+                user.getUserId(),
+                failingAttraction,
+                new Date()
+        ));
+
+        // WHEN
+        rewardsService.calculateRewards(user);
+
+        // THEN
+        final List<UserReward> rewards = user.getUserRewards();
+
+        assertThat(rewards).isNotEmpty();
+        assertThat(rewards)
+                .allMatch(r -> !r.attraction().attractionId.equals(failingAttraction.attractionId));
 
     }
 
