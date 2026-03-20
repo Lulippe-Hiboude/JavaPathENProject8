@@ -41,18 +41,12 @@ public class RewardsService {
                     if (!user.hasRewardForAttraction(attraction) && isWithinProximity(attraction, visitedLocation.location, rewardProperties.getDefaultProximityBuffer())) {
                         userRewards.add(CompletableFuture.supplyAsync(() -> new UserReward(visitedLocation, attraction,
                                 getRewardPoints(attraction, user)), executor)
-                                .exceptionally(ex -> {
-                                    log.error("Error calculating reward for user {} and attraction {}: {}",
-                                            user.getUserName(),
-                                            attraction.attractionName,
-                                            ex.getMessage(),
-                                            ex);
-                                    return null;
-                                })
+                                .exceptionally(ex -> handleRewardCalculationError(user, attraction, ex))
                         );
                     }
                 }
             }
+
             userRewards.stream()
                     .map(CompletableFuture::join)
                     .filter(Objects::nonNull)
@@ -68,6 +62,15 @@ public class RewardsService {
                                       final Location location,
                                       final int range) {
         return (LocationUtil.getDistanceInMiles(attraction, location) <= range);
+    }
+
+    private static UserReward handleRewardCalculationError(User user, Attraction attraction, Throwable ex) {
+        log.error("Error calculating reward for user {} and attraction {}: {}",
+                user.getUserName(),
+                attraction.attractionName,
+                ex.getMessage(),
+                ex);
+        return null;
     }
 
     public int getRewardPoints(final Attraction attraction, final User user) {

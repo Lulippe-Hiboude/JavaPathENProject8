@@ -59,16 +59,18 @@ public class TestPerformance {
 
     @Test
     public void highVolumeTrackLocation() {
-        GpsUtil gpsUtil = new GpsUtil();
-        GpsService gpsService = new GpsService(gpsUtil);
-        TripPricerService tripPricerService = new TripPricerService(new TripPricer(), apiKey);
-        RewardsService rewardsService = new RewardsService(gpsService, new RewardCentral(), new RewardProperties());
+        //GIVEN
+        final GpsUtil gpsUtil = new GpsUtil();
+        final GpsService gpsService = new GpsService(gpsUtil);
+        final TripPricerService tripPricerService = new TripPricerService(new TripPricer(), apiKey);
+        final RewardsService rewardsService = new RewardsService(gpsService, new RewardCentral(), new RewardProperties());
         InternalTestHelper.setInternalUserNumber(100000);
-        TourGuideService tourGuideService = new TourGuideService(gpsService, rewardsService, tripPricerService);
-        Tracker tracker = new Tracker(tourGuideService);
+        final TourGuideService tourGuideService = new TourGuideService(gpsService, rewardsService, tripPricerService);
+        final Tracker tracker = new Tracker(tourGuideService);
 
-        List<User> allUsers = tourGuideService.getAllUsers();
+        final List<User> allUsers = tourGuideService.getAllUsers();
 
+        //WHEN & THEN
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
@@ -86,18 +88,21 @@ public class TestPerformance {
 
     @Test
     void highVolumeGetRewards() {
-        GpsUtil gpsUtil = new GpsUtil();
-        GpsService gpsService = new GpsService(gpsUtil);
-        RewardsService rewardsService = new RewardsService(gpsService, new RewardCentral(), new RewardProperties());
-        TripPricerService tripPricerService = new TripPricerService(new TripPricer(), apiKey);
-        InternalTestHelper.setInternalUserNumber(100000);
-        StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
-        TourGuideService tourGuideService = new TourGuideService(gpsService, rewardsService, tripPricerService);
-        Tracker tracker = new Tracker(tourGuideService);
 
-        Attraction attraction = gpsUtil.getAttractions().getFirst();
-        List<User> allUsers = tourGuideService.getAllUsers();
+        //GIVEN
+        final GpsUtil gpsUtil = new GpsUtil();
+        final GpsService gpsService = new GpsService(gpsUtil);
+        final RewardsService rewardsService = new RewardsService(gpsService, new RewardCentral(), new RewardProperties());
+        final TripPricerService tripPricerService = new TripPricerService(new TripPricer(), apiKey);
+        InternalTestHelper.setInternalUserNumber(100000);
+        final StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
+        final TourGuideService tourGuideService = new TourGuideService(gpsService, rewardsService, tripPricerService);
+        final Tracker tracker = new Tracker(tourGuideService);
+
+        //WHEN & THEN
+        final Attraction attraction = gpsUtil.getAttractions().getFirst();
+        final List<User> allUsers = tourGuideService.getAllUsers();
         allUsers.forEach(u -> u.addToVisitedLocations(new VisitedLocation(u.getUserId(), attraction, new Date())));
 
         allUsers.forEach(rewardsService::calculateRewards);
