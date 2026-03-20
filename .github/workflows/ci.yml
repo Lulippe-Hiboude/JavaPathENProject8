@@ -43,9 +43,12 @@ jobs:
           mvn install:install-file -Dfile=libs/TripPricer.jar -DgroupId=tripPricer -DartifactId=tripPricer -Dversion=1.0.0 -Dpackaging=jar
           mvn install:install-file -Dfile=libs/RewardCentral.jar -DgroupId=rewardCentral -DartifactId=rewardCentral -Dversion=1.0.0 -Dpackaging=jar
 
-      - run: mvn clean compile
-      - run: mvn test
-      - run: mvn package -DskipTests
+      - name: Build and run tests
+        run: mvn clean verify
+
+      - name: Package fat JAR
+        run: mvn package -DskipTests
+
       - name: Upload fat JAR
         uses: actions/upload-artifact@v4
         with:
