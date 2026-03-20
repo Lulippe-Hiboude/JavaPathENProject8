@@ -25,6 +25,7 @@
         <lombok.version>1.18.36</lombok.version>
         <awaitility.version>4.2.0</awaitility.version>
         <mapstruct.version>1.6.0</mapstruct.version>
+        <jspecify.version>1.0.0</jspecify.version>
     </properties>
 
     <repositories>
@@ -68,11 +69,18 @@
             <artifactId>commons-lang3</artifactId>
         </dependency>
 
-		<dependency>
-			<groupId>org.junit.jupiter</groupId>
-			<artifactId>junit-jupiter-api</artifactId>
-			<scope>test</scope>
-		</dependency>
+        <dependency>
+            <groupId>org.jspecify</groupId>
+            <artifactId>jspecify</artifactId>
+            <version>${jspecify.version}</version>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <scope>test</scope>
+        </dependency>
 
         <dependency>
             <groupId>gpsUtil</groupId>

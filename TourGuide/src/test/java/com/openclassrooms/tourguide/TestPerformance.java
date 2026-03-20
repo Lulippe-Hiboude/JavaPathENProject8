@@ -4,8 +4,10 @@ package com.openclassrooms.tourguide;
 import com.openclassrooms.tourguide.config.RewardProperties;
 import com.openclassrooms.tourguide.helper.InternalTestHelper;
 import com.openclassrooms.tourguide.persistences.user.User;
+import com.openclassrooms.tourguide.service.GpsService;
 import com.openclassrooms.tourguide.service.RewardsService;
 import com.openclassrooms.tourguide.service.TourGuideService;
+import com.openclassrooms.tourguide.service.TripPricerService;
 import com.openclassrooms.tourguide.tracker.Tracker;
 import gpsUtil.GpsUtil;
 import gpsUtil.location.Attraction;
@@ -13,8 +15,10 @@ import gpsUtil.location.VisitedLocation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.time.StopWatch;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import rewardCentral.RewardCentral;
+import tripPricer.TripPricer;
 
 import java.time.Duration;
 import java.util.Date;
@@ -50,12 +54,17 @@ public class TestPerformance {
      * TimeUnit.MILLISECONDS.toSeconds(stopWatch.getTime()));
      */
 
+    @Value("${trip.pricer.api.key}")
+    private String apiKey;
+
     @Test
     public void highVolumeTrackLocation() {
         GpsUtil gpsUtil = new GpsUtil();
-        RewardsService rewardsService = new RewardsService(gpsUtil, new RewardCentral(), new RewardProperties());
+        GpsService gpsService = new GpsService(gpsUtil);
+        TripPricerService tripPricerService = new TripPricerService(new TripPricer(), apiKey);
+        RewardsService rewardsService = new RewardsService(gpsService, new RewardCentral(), new RewardProperties());
         InternalTestHelper.setInternalUserNumber(100000);
-        TourGuideService tourGuideService = new TourGuideService(gpsUtil, rewardsService);
+        TourGuideService tourGuideService = new TourGuideService(gpsService, rewardsService, tripPricerService);
         Tracker tracker = new Tracker(tourGuideService);
 
         List<User> allUsers = tourGuideService.getAllUsers();
@@ -78,12 +87,13 @@ public class TestPerformance {
     @Test
     void highVolumeGetRewards() {
         GpsUtil gpsUtil = new GpsUtil();
-        RewardsService rewardsService = new RewardsService(gpsUtil, new RewardCentral(), new RewardProperties());
-
+        GpsService gpsService = new GpsService(gpsUtil);
+        RewardsService rewardsService = new RewardsService(gpsService, new RewardCentral(), new RewardProperties());
+        TripPricerService tripPricerService = new TripPricerService(new TripPricer(), apiKey);
         InternalTestHelper.setInternalUserNumber(100000);
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
-        TourGuideService tourGuideService = new TourGuideService(gpsUtil, rewardsService);
+        TourGuideService tourGuideService = new TourGuideService(gpsService, rewardsService, tripPricerService);
         Tracker tracker = new Tracker(tourGuideService);
 
         Attraction attraction = gpsUtil.getAttractions().getFirst();
@@ -94,7 +104,7 @@ public class TestPerformance {
 
         assertThat(allUsers).allMatch(user -> !user.getUserRewards().isEmpty());
         assertThat(allUsers).allMatch(user -> user.getUserRewards().size() == 1);
-        assertThat(allUsers).allMatch(user -> user.getUserRewards().getFirst().attraction.attractionName.equals(attraction.attractionName));
+        assertThat(allUsers).allMatch(user -> user.getUserRewards().getFirst().attraction().attractionName.equals(attraction.attractionName));
 
         stopWatch.stop();
         tracker.stopTracking();

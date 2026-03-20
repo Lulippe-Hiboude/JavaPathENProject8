@@ -8,13 +8,11 @@ import com.openclassrooms.tourguide.persistences.user.User;
 import com.openclassrooms.tourguide.persistences.user.UserPreferences;
 import com.openclassrooms.tourguide.persistences.user.UserReward;
 import com.openclassrooms.tourguide.utils.LocationUtil;
-import gpsUtil.GpsUtil;
 import gpsUtil.location.Location;
 import gpsUtil.location.VisitedLocation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tripPricer.Provider;
-import tripPricer.TripPricer;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -24,15 +22,15 @@ import java.util.stream.IntStream;
 
 public class TourGuideService {
     private static final Logger LOGGER = LoggerFactory.getLogger(TourGuideService.class);
-    private final GpsUtil gpsUtil;
+    private final GpsService gpsService;
     private final RewardsService rewardsService;
-    private final TripPricer tripPricer = new TripPricer();
+    private final TripPricerService tripPricerService;
     boolean testMode = true;
 
-    public TourGuideService(GpsUtil gpsUtil, RewardsService rewardsService) {
-        this.gpsUtil = gpsUtil;
+    public TourGuideService(GpsService gpsService, RewardsService rewardsService, TripPricerService tripPricerService) {
+        this.gpsService = gpsService;
         this.rewardsService = rewardsService;
-
+        this.tripPricerService = tripPricerService;
         Locale.setDefault(Locale.US);
 
         if (testMode) {
@@ -69,16 +67,10 @@ public class TourGuideService {
     public List<Provider> getTripDeals(final User user) {
         final int cumulativeRewardPoints = user.getUserRewards()
                 .stream()
-                .mapToInt(UserReward::getRewardPoints).sum();
-
-        final UserPreferences userPreferences = user.getUserPreferences();
+                .mapToInt(UserReward::rewardPoints).sum();
 
         final List<Provider> providers = IntStream.range(0, 2)
-                .mapToObj(i -> tripPricer.getPrice(tripPricerApiKey,
-                        user.getUserId(),
-                        userPreferences.getNumberOfAdults(),
-                        userPreferences.getNumberOfChildren(),
-                        userPreferences.getTripDuration(),
+                .mapToObj(i -> tripPricerService.getPrice(user,
                         cumulativeRewardPoints))
                 .flatMap(List::stream)
                 .distinct()
@@ -89,7 +81,7 @@ public class TourGuideService {
     }
 
     public VisitedLocation trackUserLocation(final User user) {
-        final VisitedLocation visitedLocation = gpsUtil.getUserLocation(user.getUserId());
+        final VisitedLocation visitedLocation = gpsService.getUserLocation(user.getUserId());
         user.addToVisitedLocations(visitedLocation);
         rewardsService.calculateRewards(user);
         return visitedLocation;
@@ -98,7 +90,7 @@ public class TourGuideService {
     public List<NearbyAttractionDto> getFiveClosestAttractions(final User user) {
         final VisitedLocation visitedLocation = getUserLocation(user);
 
-        final List<AttractionDistance> closestAttractions = gpsUtil.getAttractions()
+        final List<AttractionDistance> closestAttractions = gpsService.getAttractions()
                 .stream()
                 .map(attraction -> new AttractionDistance(attraction, LocationUtil.getDistanceInMiles(visitedLocation.location, attraction)))
                 .sorted(Comparator.comparingDouble(AttractionDistance::distanceInMiles))

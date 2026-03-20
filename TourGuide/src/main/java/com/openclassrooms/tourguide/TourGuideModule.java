@@ -1,26 +1,30 @@
 package com.openclassrooms.tourguide;
 
 import com.openclassrooms.tourguide.config.RewardProperties;
+import com.openclassrooms.tourguide.service.GpsService;
 import com.openclassrooms.tourguide.service.RewardsService;
 import com.openclassrooms.tourguide.service.TourGuideService;
+import com.openclassrooms.tourguide.service.TripPricerService;
 import com.openclassrooms.tourguide.tracker.Tracker;
 import gpsUtil.GpsUtil;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import rewardCentral.RewardCentral;
+import tripPricer.TripPricer;
 
 @Configuration
 public class TourGuideModule {
 
     @Bean
-    public GpsUtil gpsUtil() {
-        return new GpsUtil();
+    public GpsService gpsService() {
+        return new GpsService(new GpsUtil());
     }
 
     @Bean
     public RewardsService rewardsService() {
-        return new RewardsService(gpsUtil(), rewardCentral(), rewardProperties());
+        return new RewardsService(gpsService(), rewardCentral(), rewardProperties());
     }
 
     @Bean
@@ -35,8 +39,13 @@ public class TourGuideModule {
     }
 
     @Bean
-    TourGuideService tourGuideService(final GpsUtil gpsUtil, final RewardsService rewardsService) {
-        return new TourGuideService(gpsUtil, rewardsService);
+    TripPricerService tripPricerService (@Value("${trip.pricer.api.key}") String apiKey) {
+        return new TripPricerService(new TripPricer(), apiKey);
+    }
+
+    @Bean
+    TourGuideService tourGuideService(final GpsService gpsService, final RewardsService rewardsService, TripPricerService tripPricerService) {
+        return new TourGuideService(gpsService, rewardsService,tripPricerService);
     }
 
     @Bean
