@@ -1,0 +1,40 @@
+name: TourGuide CI
+
+on:
+  push:
+    branches:
+      - master
+      - feature/**
+      - refactor/**
+
+  pull_request:
+    branches:
+    - master
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: TourGuide
+
+    steps:
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: maven-${{ hashFiles('**/pom.xml') }}
+
+      - run: mvn clean compile
+      - run: mvn test
+      - run: mvn package -DskipTests
