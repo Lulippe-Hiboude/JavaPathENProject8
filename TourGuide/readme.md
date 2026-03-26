@@ -14,6 +14,13 @@ TourGuide is a web-based travel guide service that provides:
 
 ---
 
+## App Architecture 
+### Diagram 
+the TourGuide architecture diagram is available in the `docs/diagram/tourguide-architecture.png` file.
+![Architecture TourGuide](docs/diagram/tourguide-architecture.png)
+
+
+
 ## Technologies
 
 | Technology | Version |
