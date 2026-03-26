@@ -1,0 +1,103 @@
+@startuml
+
+' ========================
+' STYLE
+' ========================
+
+skinparam packageStyle rectangle
+skinparam class {
+  BackgroundColor #FDF6E3
+  BorderColor #586E75
+  ArrowColor #268BD2
+}
+
+' ========================
+' CONTROLLER
+' ========================
+package "Controller" {
+  class TourGuideController
+}
+
+' ========================
+' MAPPER / DTO
+' ========================
+package "Mapper" {
+  class AttractionMapper <<MapStruct>>
+  class NearbyAttractionDto
+
+  AttractionMapper --> NearbyAttractionDto
+}
+
+' ========================
+' SERVICES
+' ========================
+package "Service" {
+  class TourGuideService {
+    - testMode : boolean
+  }
+  class GpsService
+  class RewardService
+  class TripPricerService
+}
+
+' ========================
+' INFRASTRUCTURE
+' ========================
+package "Infrastructure" {
+    class Tracker <<background thread>>
+    Tracker --> TourGuideService : uses for tracking users
+}
+
+' ========================
+' DOMAIN PERSISTENCES (IN MEMORY)
+' ========================
+package "Domain (In-Memory)" {
+  class User
+  class UserPreferences
+  class UserReward
+  class VisitedLocation
+  class Attraction
+
+  User "1" --> "*" VisitedLocation
+  User "1" --> "*" UserReward
+  User "1" --> "1" UserPreferences
+
+  UserReward --> VisitedLocation
+  UserReward --> Attraction
+}
+
+' ========================
+' EXTERNAL SYSTEMS
+' ========================
+package "External Systems" {
+  class GpsUtil
+  class RewardCentral
+  class TripPricer
+}
+
+' ========================
+' TEST SUPPORT
+' ========================
+package "Helper (for internal Testing)" {
+  class InternalTestHelper
+}
+
+' ========================
+' RELATIONS
+' ========================
+TourGuideController --> TourGuideService
+TourGuideController --> NearbyAttractionDto
+TourGuideService --> AttractionMapper : maps to DTO
+TourGuideService --> GpsService
+TourGuideService --> RewardService
+TourGuideService --> TripPricerService
+
+GpsService --> GpsUtil
+RewardService --> RewardCentral
+TripPricerService --> TripPricer
+
+TourGuideService --> User
+
+TourGuideService ..> InternalTestHelper : only if testMode
+
+@enduml
