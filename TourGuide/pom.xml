@@ -26,6 +26,7 @@
         <awaitility.version>4.2.0</awaitility.version>
         <mapstruct.version>1.6.0</mapstruct.version>
         <jspecify.version>1.0.0</jspecify.version>
+        <jacoco.version>0.8.12</jacoco.version>
     </properties>
 
     <repositories>
@@ -156,6 +157,31 @@
                 <configuration>
                     <source>21</source>
                     <target>21</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>jacoco-report</id>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                        <phase>verify</phase>
+                    </execution>
+                </executions>
+                <configuration>
+                    <excludes>
+                        <exclude>**/generated/**</exclude>
+                        <exclude>**/model/**</exclude>
+                    </excludes>
                 </configuration>
             </plugin>
             <plugin>

@@ -79,7 +79,6 @@ public class User {
         return List.copyOf(visitedLocations);
     }
 
-
     public void clearVisitedLocations() {
         visitedLocationsLock.lock();
         try {

@@ -42,6 +42,7 @@ public class TestTourGuideService {
 
     @Test
     public void getUserLocation() {
+        //GIVEN
         GpsUtil gpsUtil = new GpsUtil();
         GpsService gpsService = new GpsService(gpsUtil);
         TripPricerService tripPricerService = new TripPricerService(new TripPricer(), apiKey);
@@ -51,15 +52,19 @@ public class TestTourGuideService {
         Tracker tracker = new Tracker(tourGuideService);
 
         User user = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
+
+        //WHEN
         VisitedLocation visitedLocation = tourGuideService.trackUserLocation(user);
 
         tracker.stopTracking();
 
+        //THEN
         assertThat(visitedLocation.userId).isEqualTo(user.getUserId());
     }
 
     @Test
     public void addUser() {
+        //GIVEN
         GpsUtil gpsUtil = new GpsUtil();
         GpsService gpsService = new GpsService(gpsUtil);
         TripPricerService tripPricerService = new TripPricerService(new TripPricer(), apiKey);
@@ -70,6 +75,7 @@ public class TestTourGuideService {
         User user = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
         User user2 = new User(UUID.randomUUID(), "jon2", "000", "jon2@tourGuide.com");
 
+        //WHEN
         tourGuideService.addUser(user);
         tourGuideService.addUser(user2);
 
@@ -78,6 +84,7 @@ public class TestTourGuideService {
 
         tracker.stopTracking();
 
+        //THEN
         assertSoftly(softly -> {
             softly.assertThat(retrievedUser).isEqualTo(user);
             softly.assertThat(retrievedUser2).isEqualTo(user2);
@@ -86,6 +93,7 @@ public class TestTourGuideService {
 
     @Test
     public void getAllUsers() {
+        //GIVEN
         GpsUtil gpsUtil = new GpsUtil();
         GpsService gpsService = new GpsService(gpsUtil);
         TripPricerService tripPricerService = new TripPricerService(new TripPricer(), apiKey);
@@ -99,15 +107,18 @@ public class TestTourGuideService {
         tourGuideService.addUser(user);
         tourGuideService.addUser(user2);
 
+        //WHEN
         List<User> allUsers = tourGuideService.getAllUsers();
 
         tracker.stopTracking();
 
+        //THEN
         assertThat(allUsers).contains(user, user2);
     }
 
     @Test
     public void trackUser() {
+        //GIVEN
         GpsUtil gpsUtil = new GpsUtil();
         GpsService gpsService = new GpsService(gpsUtil);
         TripPricerService tripPricerService = new TripPricerService(new TripPricer(), apiKey);
@@ -116,15 +127,18 @@ public class TestTourGuideService {
         TourGuideService tourGuideService = new TourGuideService(gpsService, rewardsService, tripPricerService);
         Tracker tracker = new Tracker(tourGuideService);
         User user = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
-        VisitedLocation visitedLocation = tourGuideService.trackUserLocation(user);
 
+        //WHEN
+        VisitedLocation visitedLocation = tourGuideService.trackUserLocation(user);
         tracker.stopTracking();
 
+        //THEN
         assertThat(visitedLocation.userId).isEqualTo(user.getUserId());
     }
 
     @Test
     public void getNearbyAttractions() {
+        //GIVEN
         GpsUtil gpsUtil = new GpsUtil();
         GpsService gpsService = new GpsService(gpsUtil);
         TripPricerService tripPricerService = new TripPricerService(new TripPricer(), apiKey);
@@ -134,15 +148,18 @@ public class TestTourGuideService {
         Tracker tracker = new Tracker(tourGuideService);
         User user = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
 
+        //WHEN
         List<NearbyAttractionDto> attractions = tourGuideService.getFiveClosestAttractions(user);
 
         tracker.stopTracking();
 
+        //THEN
         assertThat(attractions).hasSize(5);
     }
 
     @Test
     public void getTripDeals() {
+        //GIVEN
         GpsUtil gpsUtil = new GpsUtil();
         GpsService gpsService = new GpsService(gpsUtil);
         TripPricerService tripPricerService = new TripPricerService(new TripPricer(), apiKey);
@@ -152,17 +169,19 @@ public class TestTourGuideService {
         Tracker tracker = new Tracker(tourGuideService);
         User user = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
 
+        //WHEN
         List<Provider> providers = tourGuideService.getTripDeals(user);
 
         tracker.stopTracking();
 
+        //THEN
         assertThat(providers).hasSize(10);
     }
 
     @Test
     @DisplayName("should get the 5 nearest attractions to the user")
     void getNearbyAttractionsTest() {
-        //given
+        //GIVEN
         final TripPricerService tripPricerServiceMock = mock(TripPricerService.class);
         final GpsService gpsServiceMock = mock(GpsService.class);
         final RewardsService rewardsServiceMock = mock(RewardsService.class);
@@ -187,10 +206,11 @@ public class TestTourGuideService {
         given(gpsServiceMock.getAttractions()).willReturn(attractions);
         given(tourGuideService.getUserLocation(user)).willReturn(visitedLocation);
         given(rewardsServiceMock.getRewardPoints(any(), any())).willReturn(100);
-        //when
-        List<NearbyAttractionDto> expected = tourGuideService.getFiveClosestAttractions(user);
 
-        //then
+        //WHEN
+        final List<NearbyAttractionDto> expected = tourGuideService.getFiveClosestAttractions(user);
+
+        //THEN
         assertThat(expected).hasSize(5);
         assertThat(expected.getFirst().getAttractionName())
                 .isEqualTo("Boston Common");
