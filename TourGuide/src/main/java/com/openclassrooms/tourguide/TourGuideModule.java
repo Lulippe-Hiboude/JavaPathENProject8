@@ -32,20 +32,20 @@ public class TourGuideModule {
         return new RewardCentral();
     }
 
-   @Bean
+    @Bean
     @ConfigurationProperties(prefix = "reward")
     public RewardProperties rewardProperties() {
         return new RewardProperties();
     }
 
     @Bean
-    TripPricerService tripPricerService (@Value("${trip.pricer.api.key}") String apiKey) {
+    TripPricerService tripPricerService(@Value("${trip.pricer.api.key}") String apiKey) {
         return new TripPricerService(new TripPricer(), apiKey);
     }
 
     @Bean
     TourGuideService tourGuideService(final GpsService gpsService, final RewardsService rewardsService, TripPricerService tripPricerService) {
-        return new TourGuideService(gpsService, rewardsService,tripPricerService);
+        return new TourGuideService(gpsService, rewardsService, tripPricerService);
     }
 
     @Bean

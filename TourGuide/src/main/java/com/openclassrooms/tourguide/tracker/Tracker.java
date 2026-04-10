@@ -25,7 +25,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * <p>The tracker is automatically started when the instance is created and runs
  * until it is explicitly stopped or the application shuts down.</p>
  */
-public class Tracker extends Thread {
+public class Tracker implements Runnable {
     private static final Logger LOGGER = LoggerFactory.getLogger(Tracker.class);
     private static final long TRACKING_POLLING_INTERVAL = TimeUnit.MINUTES.toSeconds(5);
     private final AtomicLong trackedUsersCount = new AtomicLong(0);

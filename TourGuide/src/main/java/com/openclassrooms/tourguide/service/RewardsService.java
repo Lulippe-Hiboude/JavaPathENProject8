@@ -86,9 +86,9 @@ public class RewardsService {
      * {@link RewardProperties}.</p>
      *
      * @param attraction the attraction to compare against
-     * @param location the location to evaluate
+     * @param location   the location to evaluate
      * @return {@code true} if the location is within the attraction proximity range,
-     *         {@code false} otherwise
+     * {@code false} otherwise
      */
     public boolean isWithinAttractionProximity(final Attraction attraction, final Location location) {
         return isWithinProximity(attraction, location, rewardProperties.getAttractionProximityRange());
@@ -118,9 +118,9 @@ public class RewardsService {
      * rewards.</p>
      *
      * @param attraction the attraction associated with the reward
-     * @param user the user eligible for the reward
+     * @param user       the user eligible for the reward
      * @return the number of reward points granted for the attraction,
-     *         or {@code 0} if the user has already received the reward
+     * or {@code 0} if the user has already received the reward
      */
     public int getRewardPoints(final Attraction attraction, final User user) {
         if (!user.hasRewardForAttraction(attraction)) {
