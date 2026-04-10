@@ -45,6 +45,18 @@ public class TourGuideService {
         return user.getUserRewards();
     }
 
+    /**
+     * Retrieves the current location of a user.
+     *
+     * <p>If the user already has at least one recorded location, the most recent
+     * visited location is returned. Otherwise, a new location is fetched using
+     * {@link #trackUserLocation(User)}.</p>
+     *
+     * <p>This method ensures that a user always has a valid location.</p>
+     *
+     * @param user the user whose location is requested
+     * @return the last known or newly tracked {@link VisitedLocation}
+     */
     public VisitedLocation getUserLocation(final User user) {
         return (!user.getVisitedLocations().isEmpty()) ? user.getLastVisitedLocation()
                 : trackUserLocation(user);
@@ -64,6 +76,18 @@ public class TourGuideService {
         }
     }
 
+    /**
+     * Retrieves trip deals for a given user based on their accumulated reward points.
+     *
+     * <p>The total reward points of the user are calculated and passed to the
+     * {@link TripPricerService} to fetch pricing offers. Multiple calls are made
+     * to increase the diversity of providers, and duplicate offers are removed.</p>
+     *
+     * <p>The resulting list of {@link Provider} is stored in the user and returned.</p>
+     *
+     * @param user the user for whom to retrieve trip deals
+     * @return a list of unique trip providers with pricing offers
+     */
     public List<Provider> getTripDeals(final User user) {
         final int cumulativeRewardPoints = user.getUserRewards()
                 .stream()
@@ -80,6 +104,21 @@ public class TourGuideService {
         return providers;
     }
 
+    /**
+     * Tracks and updates the current location of a user.
+     *
+     * <p>This method performs the following operations:</p>
+     * <ul>
+     *   <li>Fetches the user's current location from the {@link GpsService}</li>
+     *   <li>Adds the location to the user's history of visited locations</li>
+     *   <li>Triggers reward calculation via {@link RewardsService}</li>
+     * </ul>
+     *
+     * <p>This method has side effects as it mutates the user's state.</p>
+     *
+     * @param user the user to track
+     * @return the newly recorded {@link VisitedLocation}
+     */
     public VisitedLocation trackUserLocation(final User user) {
         final VisitedLocation visitedLocation = gpsService.getUserLocation(user.getUserId());
         user.addToVisitedLocations(visitedLocation);
@@ -87,6 +126,23 @@ public class TourGuideService {
         return visitedLocation;
     }
 
+    /**
+     * Retrieves the five closest tourist attractions to the user's current location.
+     *
+     * <p>This method:</p>
+     * <ol>
+     *   <li>Determines the user's current location</li>
+     *   <li>Calculates the distance between the user and all known attractions</li>
+     *   <li>Sorts attractions by ascending distance</li>
+     *   <li>Selects the five nearest attractions</li>
+     *   <li>Maps each attraction to a {@link NearbyAttractionDto}, including reward points</li>
+     * </ol>
+     *
+     * <p>Distance is computed using {@link LocationUtil#getDistanceInMiles}.</p>
+     *
+     * @param user the user for whom to find nearby attractions
+     * @return a list of the five closest attractions with distance and reward information
+     */
     public List<NearbyAttractionDto> getFiveClosestAttractions(final User user) {
         final VisitedLocation visitedLocation = getUserLocation(user);
 

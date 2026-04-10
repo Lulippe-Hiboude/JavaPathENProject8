@@ -29,6 +29,28 @@ public class RewardsService {
         this.rewardsCentral = rewardCentral;
     }
 
+    /**
+     * Calculates and assigns rewards to a user based on their visited locations
+     * and proximity to known attractions.
+     *
+     * <p>This method compares every location visited by the user with all known
+     * attractions retrieved from {@link GpsService}. If the user has been within
+     * the configured proximity buffer of an attraction and has not already received
+     * a reward for it, a reward calculation task is created.</p>
+     *
+     * <p>Reward calculations are executed concurrently using virtual threads via
+     * {@link Executors#newVirtualThreadPerTaskExecutor()}. Each task retrieves the
+     * reward points from {@link RewardCentral} and creates a {@link UserReward}
+     * object.</p>
+     *
+     * <p>Once all asynchronous computations complete, the resulting rewards are
+     * collected and added to the user.</p>
+     *
+     * <p>Error handling is performed per task to avoid interrupting the entire
+     * reward calculation process if one attraction fails.</p>
+     *
+     * @param user the user for whom rewards are being calculated
+     */
     public void calculateRewards(final User user) {
         final List<Attraction> attractions = gpsService.getAttractions();
         final List<VisitedLocation> userLocations = user.getVisitedLocations();
@@ -40,7 +62,7 @@ public class RewardsService {
                 for (Attraction attraction : attractions) {
                     if (!user.hasRewardForAttraction(attraction) && isWithinProximity(attraction, visitedLocation.location, rewardProperties.getDefaultProximityBuffer())) {
                         userRewards.add(CompletableFuture.supplyAsync(() -> new UserReward(visitedLocation, attraction,
-                                getRewardPoints(attraction, user)), executor)
+                                        getRewardPoints(attraction, user)), executor)
                                 .exceptionally(ex -> handleRewardCalculationError(user, attraction, ex))
                         );
                     }
@@ -54,6 +76,20 @@ public class RewardsService {
         }
     }
 
+    /**
+     * Determines whether a given location is within the configured proximity
+     * range of a specific attraction.
+     *
+     * <p>The distance between the attraction and the provided location is
+     * calculated using {@link LocationUtil#getDistanceInMiles}. The result
+     * is then compared against the attraction proximity range defined in
+     * {@link RewardProperties}.</p>
+     *
+     * @param attraction the attraction to compare against
+     * @param location the location to evaluate
+     * @return {@code true} if the location is within the attraction proximity range,
+     *         {@code false} otherwise
+     */
     public boolean isWithinAttractionProximity(final Attraction attraction, final Location location) {
         return isWithinProximity(attraction, location, rewardProperties.getAttractionProximityRange());
     }
@@ -73,6 +109,19 @@ public class RewardsService {
         return null;
     }
 
+    /**
+     * Retrieves the reward points associated with a given attraction for a user.
+     *
+     * <p>If the user has not yet received a reward for the specified attraction,
+     * the reward points are requested from {@link RewardCentral}. If the reward
+     * has already been granted, the method returns {@code 0} to prevent duplicate
+     * rewards.</p>
+     *
+     * @param attraction the attraction associated with the reward
+     * @param user the user eligible for the reward
+     * @return the number of reward points granted for the attraction,
+     *         or {@code 0} if the user has already received the reward
+     */
     public int getRewardPoints(final Attraction attraction, final User user) {
         if (!user.hasRewardForAttraction(attraction)) {
             return rewardsCentral.getAttractionRewardPoints(attraction.attractionId, user.getUserId());
