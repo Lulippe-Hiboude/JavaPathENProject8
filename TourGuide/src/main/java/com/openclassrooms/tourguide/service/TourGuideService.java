@@ -5,7 +5,6 @@ import com.openclassrooms.tourguide.helper.InternalTestHelper;
 import com.openclassrooms.tourguide.mapper.AttractionMapper;
 import com.openclassrooms.tourguide.persistences.record.AttractionDistance;
 import com.openclassrooms.tourguide.persistences.user.User;
-import com.openclassrooms.tourguide.persistences.user.UserPreferences;
 import com.openclassrooms.tourguide.persistences.user.UserReward;
 import com.openclassrooms.tourguide.utils.LocationUtil;
 import gpsUtil.location.Location;
@@ -81,12 +80,12 @@ public class TourGuideService {
      *
      * <p>The total reward points of the user are calculated and passed to the
      * {@link TripPricerService} to fetch pricing offers. Multiple calls are made
-     * to increase the diversity of providers, and duplicate offers are removed.</p>
+     * to increase the diversity of providers.</p>
      *
      * <p>The resulting list of {@link Provider} is stored in the user and returned.</p>
      *
      * @param user the user for whom to retrieve trip deals
-     * @return a list of unique trip providers with pricing offers
+     * @return a list of trip providers with pricing offers
      */
     public List<Provider> getTripDeals(final User user) {
         final int cumulativeRewardPoints = user.getUserRewards()

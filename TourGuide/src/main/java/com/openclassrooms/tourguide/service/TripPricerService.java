@@ -32,7 +32,7 @@ public class TripPricerService {
      *   <li>The cumulative reward points of the user</li>
      * </ul>
      *
-     * @param user the user requesting trip offers
+     * @param user                   the user requesting trip offers
      * @param cumulativeRewardPoints the total reward points accumulated by the user
      * @return a list of {@link Provider} representing available trip deals
      */

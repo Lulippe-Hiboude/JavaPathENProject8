@@ -15,7 +15,7 @@ public interface AttractionMapper {
     AttractionMapper INSTANCE = Mappers.getMapper(AttractionMapper.class);
 
     @Mapping(target = "attractionName", source = "attractionDistance.attraction.attractionName")
-    @Mapping(target = "attractionCoordinate",source = "attractionDistance", qualifiedByName = "toAttractionCoordinateDto")
+    @Mapping(target = "attractionCoordinate", source = "attractionDistance", qualifiedByName = "toAttractionCoordinateDto")
     @Mapping(target = "userCoordinate", source = "location", qualifiedByName = "toUserCoordinateDto")
     @Mapping(target = "distanceInMiles", source = "attractionDistance.distanceInMiles")
     @Mapping(target = "rewardPoints", source = "rewardPoints")
