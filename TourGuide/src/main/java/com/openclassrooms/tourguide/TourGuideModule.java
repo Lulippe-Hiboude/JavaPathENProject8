@@ -32,7 +32,7 @@ public class TourGuideModule {
         return new RewardCentral();
     }
 
-    @Bean
+   @Bean
     @ConfigurationProperties(prefix = "reward")
     public RewardProperties rewardProperties() {
         return new RewardProperties();

@@ -12,58 +12,65 @@ skinparam class {
 }
 
 ' ========================
-' CONTROLLER
+' APPLICATION PACKAGE
 ' ========================
-package "Controller" {
-  class TourGuideController
-}
+package "TourGuide App" {
 
-' ========================
-' MAPPER / DTO
-' ========================
-package "Mapper" {
-  class AttractionMapper <<MapStruct>>
-  class NearbyAttractionDto
-
-  AttractionMapper --> NearbyAttractionDto
-}
-
-' ========================
-' SERVICES
-' ========================
-package "Service" {
-  class TourGuideService {
-    - testMode : boolean
+  ' CONTROLLER
+  package "Controller" {
+    class TourGuideController
   }
-  class GpsService
-  class RewardService
-  class TripPricerService
-}
 
-' ========================
-' INFRASTRUCTURE
-' ========================
-package "Infrastructure" {
+  ' MAPPER / DTO
+  package "Mapper" {
+    class AttractionMapper <<MapStruct>>
+    class NearbyAttractionDto
+
+    AttractionMapper --> NearbyAttractionDto
+  }
+
+  ' SERVICES
+  package "Service" {
+    class TourGuideService {
+      - testMode : boolean
+    }
+    class GpsService
+    class RewardService
+    class TripPricerService
+  }
+
+  ' INFRASTRUCTURE
+  package "Infrastructure" {
     class Tracker <<background thread>>
     Tracker --> TourGuideService : uses for tracking users
-}
+  }
 
-' ========================
-' DOMAIN PERSISTENCES (IN MEMORY)
-' ========================
-package "Domain (In-Memory)" {
-  class User
-  class UserPreferences
-  class UserReward
-  class VisitedLocation
-  class Attraction
+  ' DOMAIN PERSISTENCES
+  package "Domain (In-Memory)" {
+    class User
+    class UserPreferences
+    class UserReward
+    class VisitedLocation
+    class Attraction
 
-  User "1" --> "*" VisitedLocation
-  User "1" --> "*" UserReward
-  User "1" --> "1" UserPreferences
+    User "1" --> "*" VisitedLocation
+    User "1" --> "*" UserReward
+    User "1" --> "1" UserPreferences
 
-  UserReward --> VisitedLocation
-  UserReward --> Attraction
+    UserReward "1" --> "1" VisitedLocation
+    UserReward "1" --> "1" Attraction
+  }
+
+  ' TEST SUPPORT
+  package "Helper (for internal Testing)" {
+    class InternalTestHelper
+  }
+
+  ' CONFIGURATION
+  package "Configuration" {
+    class RewardProperties
+  }
+
 }
 
 ' ========================
@@ -75,15 +82,14 @@ package "External Systems" {
   class TripPricer
 }
 
-' ========================
-' TEST SUPPORT
-' ========================
-package "Helper (for internal Testing)" {
-  class InternalTestHelper
-}
 
 ' ========================
-' RELATIONS
+' CLIENT
+' ========================
+class Client
+
+' ========================
+' RELATIONS INTERNES
 ' ========================
 TourGuideController --> TourGuideService
 TourGuideController --> NearbyAttractionDto
@@ -92,12 +98,36 @@ TourGuideService --> GpsService
 TourGuideService --> RewardService
 TourGuideService --> TripPricerService
 
+TourGuideService --> User
+TourGuideService ..> InternalTestHelper : only if testMode
+
+' ========================
+' RELATIONS VERS L'EXTÉRIEUR
+' ========================
 GpsService --> GpsUtil
 RewardService --> RewardCentral
+RewardService --> RewardProperties
 TripPricerService --> TripPricer
 
-TourGuideService --> User
 
-TourGuideService ..> InternalTestHelper : only if testMode
+' ========================
+' RELATIONS AVEC CLIENT
+' ========================
+Client --> TourGuideController : HTTP request
+TourGuideController --> Client : HTTP response
+
+' ========================
+' LEGEND
+' ========================
+package  as LegendBox {
+  class Legend {
+  - <color:#268BD2>⟶</color> : relation directe / utilisation
+  - <color:#268BD2>⇢</color> : dépendance faible ou utilisation optionnelle
+  - Cardinalité :
+        1 <color:#268BD2>⟶</color> * : un objet vers plusieurs objets
+        1 <color:#268BD2>⟶</color> 1 : un objet vers un autre objet
+  - Stéréotype (MapStruct, background thread) : rôle particulier d'une classe
+  }
+}
 
 @enduml
