@@ -14,6 +14,17 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
+/**
+ * Background tracker responsible for periodically updating the location of all users.
+ *
+ * <p>This component runs in its own dedicated thread and continuously performs
+ * tracking operations at a fixed interval. For each cycle, it retrieves all users
+ * from the {@link TourGuideService} and updates their location concurrently using
+ * virtual threads.</p>
+ *
+ * <p>The tracker is automatically started when the instance is created and runs
+ * until it is explicitly stopped or the application shuts down.</p>
+ */
 public class Tracker extends Thread {
     private static final Logger LOGGER = LoggerFactory.getLogger(Tracker.class);
     private static final long TRACKING_POLLING_INTERVAL = TimeUnit.MINUTES.toSeconds(5);
@@ -42,6 +53,16 @@ public class Tracker extends Thread {
         executorService.shutdownNow();
     }
 
+    /**
+     * Main execution loop of the tracker.
+     *
+     * <p>This method continuously performs tracking cycles until the tracker
+     * is interrupted or {@link #stopTracking()} is called.</p>
+     *
+     * <p>During each cycle, all users are tracked concurrently using virtual
+     * threads and the method waits for all tasks to complete before sleeping
+     * for the configured polling interval.</p>
+     */
     @Override
     public void run() {
         StopWatch stopWatch = new StopWatch();

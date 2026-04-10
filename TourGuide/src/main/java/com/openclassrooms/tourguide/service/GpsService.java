@@ -30,6 +30,18 @@ public class GpsService {
         this.gpsUtil = gpsUtil;
     }
 
+    /**
+     * Returns the list of known tourist attractions.
+     *
+     * <p>The attractions are cached to avoid repeated calls to the external
+     * {@link GpsUtil} service. If the cache has expired (based on the configured
+     * {@code timeToLive}), the attractions list is refreshed.</p>
+     *
+     * <p>A {@link ReentrantLock} ensures that only one thread can refresh the cache
+     * at a time, preventing race conditions in concurrent environments.</p>
+     *
+     * @return a list of available {@link Attraction}
+     */
     public List<Attraction> getAttractions() {
         lock.lock();
         try {
@@ -45,6 +57,15 @@ public class GpsService {
         }
     }
 
+    /**
+     * Retrieves the current GPS location of a user.
+     *
+     * <p>This method delegates the request to the underlying {@link GpsUtil}
+     * service, which provides real-time location data for the specified user.</p>
+     *
+     * @param userId the unique identifier of the user
+     * @return the current {@link VisitedLocation} of the user
+     */
     public VisitedLocation getUserLocation(final UUID userId) {
         return gpsUtil.getUserLocation(userId);
     }
